@@ -154,6 +154,31 @@ Monitor training: `uv run tensorboard --logdir runs/detect`.
   (`arrow_left_green` ≠ `arrow_right_green`), so horizontal flip would corrupt
   labels. Rotation/shear/perspective are also off — they distort tiny lights.
 
+## Models & combinations tried
+
+Everything we evaluated on the way to F1 = 71.27. Val mAP50 is on the ATLAS
+`test` split (a proxy); **Test F1** is the scored leaderboard metric on the 425
+CoCar images (only measured at milestones).
+
+| Approach | Backbone | Train data | Val mAP50 | Test F1 | Verdict |
+|---|---|---|---|---|---|
+| Full-image baseline | YOLO26m | full @1024 | 0.473 | — | baseline (m) |
+| Full-image | YOLO26s | full @1024 | 0.424 | 69.21 solo | ✅ ensemble **"incumbent"** — precision leg |
+| Full-image + rotation aug (`degrees=8`) | YOLO26s | full @1024 | 0.390 | — | ❌ hurt tiny objects → dropped |
+| SAHI tiled | YOLO26m | tiled640 + full | 0.507 | 66.28 | best recall (m) |
+| SAHI tiled, infer @640 | YOLO26s | tiled640 + full | 0.427 | — | ✅ ensemble **"SAHI-s"** — small-light recall |
+| SAHI tiled, infer @1024 | YOLO26s | tiled640 + full | 0.525 | — | ✅ ensemble **"ctx1024"** — context/recall |
+| Matched 1024-tile retrain | YOLO26s | tiled1024 + full | **0.530** | 67.26 solo | best solo mAP; not in final ensemble |
+| Tiles only (no full frames) | YOLO26s | tiled640 | 0.477 | 56.46 | ❌ collapsed — full frames are essential |
+| YOLOv12m · RT-DETR-L · RF-DETR | — | — | — | — | explored, dropped (frozen in `deliverables/code/`) |
+| **3-model WBF ensemble + tiled inference** | 3× YOLO26s | — | — | **71.27** | 🏆 **final submission** |
+
+Takeaways: SAHI-style tiling **with** full frames kept (never tiles alone);
+geometric augmentation hurts ~8 px lights (`fliplr` off always — directional
+arrow classes; rotation off); a Weighted Box Fusion ensemble of three diverse
+YOLO26s checkpoints beats any single model. `imgsz` matters more than backbone
+size (26s over 26m for ensemble diversity + speed).
+
 ## Scoring recap
 
 F1 = 2·TP / (2·TP + FP + FN); TP needs IoU > 0.5 **and** correct class.
