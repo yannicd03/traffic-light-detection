@@ -64,7 +64,7 @@ uv sync                    # ultralytics + torch into .venv
 
 Trained checkpoints (`runs/`) are too large for git and are hosted separately.
 
-**Download:** `<GOOGLE_DRIVE_LINK_PLACEHOLDER>`
+**Download:** <https://drive.google.com/drive/folders/1t3TChIyoLN2PpKihnO2LRtT1H6bNZTav?usp=sharing>
 
 Unzip so the runs land under `runs/detect/`. The three checkpoints used by the
 final ensemble:
