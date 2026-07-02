@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environment — recreate with `uv sync`
+.venv/
+
+# Dataset — not redistributed; download separately (see README)
+dataset/
+
+# Trained checkpoints & TensorBoard runs — download from Google Drive (see README)
+runs/
+
+# Ultralytics base checkpoints — auto-downloaded on first train/predict
+*.pt
+
+# Confidence / tiling sweep outputs (the canonical predictions.csv is kept)
+predictions_*.csv
+
+# Assignment PDF (course material — kept locally, not redistributed)
+Aufgabe.pdf
+
+# Kept in git on purpose (final deliverable + reference dummy):
+#   predictions.csv, dummy_tld_predictions.csv, deliverables/, .agent/

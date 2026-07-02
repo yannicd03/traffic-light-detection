@@ -1,0 +1,21 @@
+[project]
+name = "ml2-tld"
+version = "0.1.0"
+description = "ML2 bonus — Traffic Light Detection with Ultralytics YOLO"
+requires-python = ">=3.10"
+dependencies = [
+    "ultralytics>=8.4.0",  # YOLO26 support (8.4.70 = latest as of 2026-06)
+    "torch",
+    "torchvision",
+    "pandas",
+    "tensorboard",  # Ultralytics auto-logs to TB when installed (view: tensorboard --logdir runs/detect)
+]
+
+[project.optional-dependencies]
+# RF-DETR is a separate Roboflow package with its own torch pin; keep it out of
+# the default env to avoid clashing with ultralytics. Install with:
+#   uv sync --extra rfdetr
+rfdetr = ["rfdetr"]
+
+[tool.uv]
+# CPU-only torch is fine for inference; for training prefer a CUDA build / Colab.

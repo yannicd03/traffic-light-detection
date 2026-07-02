@@ -1,0 +1,85 @@
+ML2 Bonus (SS2026) — Erklärung / Explanation
+Team Albatross
+================================================
+
+1. CHOSEN PROJECT
+-----------------
+Project B — Traffic Light Detection (TLD) on the ATLAS dataset
+(2D detection + classification of traffic lights, 25 classes).
+
+Result: F1 = 71.27 on the 425-image test set, validated at
+https://kit-ml2.streamlit.app/ . This is well above the F1 > 40
+threshold, i.e. the full 3 bonus points.
+
+
+2. ML ARCHITECTURE
+------------------
+Base detector: Ultralytics YOLO26 (the "yolo26s" small variant),
+COCO-pretrained and fine-tuned on ATLAS.
+
+The final submission is a 3-model WEIGHTED BOX FUSION (WBF) ENSEMBLE of
+three YOLO26s checkpoints, evaluated with SAHI-style TILED inference:
+
+  (a) "incumbent" - yolo26s trained on full images at input size 1024
+      (high precision).
+  (b) "SAHI-s"    - yolo26s trained on 640px tiles + full frames
+      (higher recall on small lights).
+  (c) "ctx1024"   - yolo26s trained on 1024px tiles + full frames
+      (adds recall / scene context).
+
+
+3. HOW WE TRAINED (overview)
+----------------------------
+Data preparation:
+  - ATLAS ships in YOLO format (3 forward cameras, ~30k images at
+    ~2500px). The test set is 1600x900, so for the tiled models we first
+    downscale each training frame to 1600px longest side (to match the
+    test object scale), then slice it into overlapping tiles.
+  - SAHI-style "mixed" training: the tiled dataset KEEPS the full frames
+    alongside the tiles. Tiles teach detection of the small (~8px)
+    lights at native resolution; the full frames preserve scene context
+    and large objects. (Training on tiles ALONE collapsed performance -
+    the full frames are essential, following Akbas et al. 2022.)
+
+Training settings (Ultralytics, per model):
+  - Optimizer/LR: Ultralytics "auto" (MuSGD); imgsz 640 or 1024.
+  - Light mixup regularization; mosaic on.
+  - fliplr DISABLED (left/right arrow classes are mirror-distinct).
+  - Geometric augmentations (rotation/shear/perspective) OFF - they
+    distort the tiny traffic lights and hurt.
+  - Early-stopped at the peak of the validation F1 metric.
+
+Inference (SAHI tiled + ensemble):
+  - Each 1600x900 test image is sliced into 1024px tiles (with overlap)
+    plus one full-image pass; every model runs on every tile and the
+    boxes are mapped back to full-image pixel coordinates.
+  - The three models' detections are fused with Weighted Box Fusion,
+    which keeps boxes the models agree on (precision) while recovering
+    lights only one model found (recall).
+  - The final confidence threshold was tuned on the validator to
+    maximize F1 (optimum at out-conf 0.20).
+
+Progression: a single fine-tuned model scores ~69; the ensemble + tiled
+context + the matched 1024-tile retrain took it to 71.27.
+
+
+4. CODE (see code/ folder)
+--------------------------
+Final pipeline:
+  train.py            - training (incl. tiled-dataset build, mixup,
+                        regularization flags, live val-F1 logging)
+  tile_dataset.py     - builds the tiled + downscaled + full-frame
+                        ("keep-full") training dataset
+  predict_tiled.py    - SAHI-style tiled inference -> submission CSV
+  predict_ensemble.py - N-model Weighted Box Fusion ensemble -> CSV
+  predict.py          - shared inference helpers
+  atlas.yaml          - dataset config (25 classes)
+  pyproject.toml      - dependencies (uv / Ultralytics / ensemble-boxes)
+
+Also included (exploration, not in the final submission): RT-DETR /
+YOLOv12 / RF-DETR training+inference scaffolds and a CSV->TensorBoard
+helper.
+
+Submission file: predictions.csv (one row per detected box;
+columns ImageName, xywh=[center_x, center_y, w, h] in absolute pixels,
+Conf, Classification).
