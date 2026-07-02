@@ -36,8 +36,8 @@ tld-traffic-light-detection/
 ```
 
 > The alt-detector scaffolds we explored but dropped (YOLOv12, RT-DETR, RF-DETR)
-> and the training/monitoring helper scripts live only in the frozen
-> `deliverables/code/` snapshot — the working tree keeps just the final pipeline.
+> and the training/monitoring helper scripts are not part of the submission; they
+> remain in git history if you want to revisit them.
 
 ---
 
@@ -170,7 +170,7 @@ CoCar images (only measured at milestones).
 | SAHI tiled, infer @1024 | YOLO26s | tiled640 + full | 0.525 | — | ✅ ensemble **"ctx1024"** — context/recall |
 | Matched 1024-tile retrain | YOLO26s | tiled1024 + full | **0.530** | 67.26 solo | best solo mAP; not in final ensemble |
 | Tiles only (no full frames) | YOLO26s | tiled640 | 0.477 | 56.46 | ❌ collapsed — full frames are essential |
-| YOLOv12m · RT-DETR-L · RF-DETR | — | — | — | — | explored, dropped (frozen in `deliverables/code/`) |
+| YOLOv12m · RT-DETR-L · RF-DETR | — | — | — | — | explored, dropped (in git history) |
 | **3-model WBF ensemble + tiled inference** | 3× YOLO26s | — | — | **71.27** | 🏆 **final submission** |
 
 Takeaways: SAHI-style tiling **with** full frames kept (never tiles alone);

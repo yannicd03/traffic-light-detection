@@ -76,10 +76,6 @@ Final pipeline:
   atlas.yaml          - dataset config (25 classes)
   pyproject.toml      - dependencies (uv / Ultralytics / ensemble-boxes)
 
-Also included (exploration, not in the final submission): RT-DETR /
-YOLOv12 / RF-DETR training+inference scaffolds and a CSV->TensorBoard
-helper.
-
 Submission file: predictions.csv (one row per detected box;
 columns ImageName, xywh=[center_x, center_y, w, h] in absolute pixels,
 Conf, Classification).

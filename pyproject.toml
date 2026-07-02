@@ -8,14 +8,9 @@ dependencies = [
     "torch",
     "torchvision",
     "pandas",
+    "ensemble-boxes",  # Weighted Box Fusion for the 3-model ensemble (predict_ensemble.py)
     "tensorboard",  # Ultralytics auto-logs to TB when installed (view: tensorboard --logdir runs/detect)
 ]
-
-[project.optional-dependencies]
-# RF-DETR is a separate Roboflow package with its own torch pin; keep it out of
-# the default env to avoid clashing with ultralytics. Install with:
-#   uv sync --extra rfdetr
-rfdetr = ["rfdetr"]
 
 [tool.uv]
 # CPU-only torch is fine for inference; for training prefer a CUDA build / Colab.

@@ -9,7 +9,7 @@
 # ATLAS ships only train + test (both labelled); we use test as the validation
 # split here. The course's real 425-image submission test set is separate.
 
-path: /home/yannic/code/ml2-bonus/tld/dataset/ATLAS   # dataset root
+path: /home/yannic/code/tld-traffic-light-detection/dataset/ATLAS   # dataset root (edit to your local ATLAS path)
 train: train                       # 30216 imgs across 3 cameras
 val: test                          # 2828 imgs (used for validation)
 
