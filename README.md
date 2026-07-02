@@ -19,28 +19,25 @@ threshold, i.e. the full **3 bonus points**. (Validated at
 
 ```
 tld-traffic-light-detection/
-├── train.py            # YOLO26m training (+ tiled-dataset build, mixup, live val-F1)
-├── train_yolo12.py     # YOLOv12m (attention-based) — comparison
-├── train_rtdetr.py     # RT-DETR-L (Ultralytics transformer) — comparison
-├── train_rfdetr.py     # RF-DETR (Roboflow, optional extra; own dataset layout)
+├── train.py            # YOLO26 training (+ tiled-dataset build, mixup, live val-F1)
 ├── predict.py          # shared single-model inference → CSV
 ├── predict_tiled.py    # SAHI-style tiled inference → CSV
 ├── predict_ensemble.py # N-model Weighted Box Fusion ensemble → CSV  (final path)
-├── predict_rfdetr.py   # RF-DETR inference → CSV
 ├── tile_dataset.py     # builds the tiled + downscaled + full-frame training set
-├── reorg_for_rfdetr.py # reshapes ATLAS into the RF-DETR train/valid/test layout
 ├── atlas.yaml          # dataset config (25 classes) — edit `path:` to your ATLAS root
-├── csv_to_tb.py        # CSV → TensorBoard helper
-├── *.sh                # training queue / monitoring helper scripts
 ├── predictions.csv     # final submission (committed)
 ├── deliverables/       # frozen Ilias submission (erklaerung.txt + predictions.csv + code/)
 ├── .agent/             # architecture / design-decision docs
-├── pyproject.toml      # uv / ultralytics / torch (+ optional rfdetr extra)
+├── pyproject.toml      # uv / ultralytics / torch
 │
-├── dataset/            # (gitignored) ATLAS/, ATLAS_tiled_*/, ATLAS_rfdetr/, test_tld/
+├── dataset/            # (gitignored) ATLAS/, ATLAS_tiled_*/, test_tld/
 ├── runs/               # (gitignored) trained checkpoints + TensorBoard  → Google Drive
 └── *.pt                # (gitignored) Ultralytics base weights (auto-downloaded)
 ```
+
+> The alt-detector scaffolds we explored but dropped (YOLOv12, RT-DETR, RF-DETR)
+> and the training/monitoring helper scripts live only in the frozen
+> `deliverables/code/` snapshot — the working tree keeps just the final pipeline.
 
 ---
 
@@ -54,7 +51,6 @@ tests.
 git clone <your-repo-url> tld-traffic-light-detection
 cd tld-traffic-light-detection
 uv sync                    # ultralytics + torch into .venv
-# uv sync --extra rfdetr   # only if you want the RF-DETR path (separate torch pin)
 ```
 
 > For training you want a CUDA-enabled torch build. The default install works for
@@ -128,8 +124,6 @@ box; images with no detections get no row.
 ```bash
 uv run train.py                              # YOLO26m, imgsz 1280 — start here
 uv run train.py --model yolo26s.pt --batch 8 --device 0
-uv run train_yolo12.py                       # YOLOv12m
-uv run train_rtdetr.py                       # RT-DETR-L
 ```
 
 Best checkpoint lands at `runs/detect/<name>/weights/best.pt`.
@@ -144,19 +138,6 @@ uv run train.py --data dataset/ATLAS_tiled_1024_full_ds1600/data.yaml
 ```
 
 Monitor training: `uv run tensorboard --logdir runs/detect`.
-
-### RF-DETR path (optional)
-
-```bash
-uv run reorg_for_rfdetr.py --src dataset/ATLAS --dst dataset/ATLAS_rfdetr
-uv sync --extra rfdetr
-uv run --extra rfdetr train_rfdetr.py --dataset-dir dataset/ATLAS_rfdetr
-uv run --extra rfdetr predict_rfdetr.py --images dataset/test_tld
-```
-
-See `train_rfdetr.py`'s header and `.agent/project_architecture.md` for the
-RF-DETR caveats (own dataset layout, `--resolution` divisible by 56, class-id
-offset).
 
 ---
 

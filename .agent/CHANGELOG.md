@@ -1,3 +1,4 @@
 # CHANGELOG
 
+- 2026-07-02 — Decluttered the working tree to just the final pipeline (train.py, tile_dataset.py, predict.py, predict_tiled.py, predict_ensemble.py). Removed the exploration/alt-model scaffolds (train_yolo12.py, train_rtdetr.py, train_rfdetr.py, predict_rfdetr.py, reorg_for_rfdetr.py, csv_to_tb.py) and the one-off monitoring shell scripts via `git rm` — frozen copies remain in `deliverables/code/`, and the full experiment archive (per-run validation mAP + findings) is recorded in the wiki (`0_Claude/ml2-bonus-tld/`). README trimmed to match. Note: `project_architecture.md` below still documents the removed RF-DETR / alt-model families as historical context.
 - 2026-06-18 — Initialized .agent/; created project_architecture.md covering dataset layout, model families, RF-DETR split, CSV format, and key design decisions.
